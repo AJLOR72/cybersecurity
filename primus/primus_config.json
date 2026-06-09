@@ -1,0 +1,8 @@
+{
+    "dry_run": true,
+    "auto_block": true,
+    "learning_enabled": true,
+    "webhook_url": null,
+    "ip_whitelist": ["127.0.0.1", "192.168.1.1"],
+    "port_whitelist": [80, 443, 53]
+}

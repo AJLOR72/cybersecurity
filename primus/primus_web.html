@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRIMUS-ADVANCED Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Courier New', monospace; background: #0a0a0a; color: #00ff00; padding: 20px; }
+        .container { max-width: 1400px; margin: 0 auto; }
+        .header { text-align: center; padding: 20px; border-bottom: 2px solid #00ff00; margin-bottom: 30px; }
+        .header h1 { font-size: 2.5em; letter-spacing: 5px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 30px; }
+        .stat-card { background: #111; border: 1px solid #00ff00; border-radius: 10px; padding: 15px; text-align: center; }
+        .stat-card .value { font-size: 1.8em; font-weight: bold; }
+        .panel { background: #111; border: 1px solid #333; border-radius: 10px; padding: 20px; margin-bottom: 20px; }
+        .panel h2 { margin-bottom: 15px; font-size: 1.2em; color: #00ff00; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { text-align: left; padding: 10px; border-bottom: 1px solid #333; }
+        .severity-CRITICAL { color: #ff0000; }
+        .severity-HIGH { color: #ff6600; }
+        .button { background: #00ff00; color: #000; border: none; padding: 10px 20px; cursor: pointer; border-radius: 5px; margin: 5px; font-family: monospace; font-weight: bold; }
+        .button-danger { background: #ff0000; color: #fff; }
+        .button-warning { background: #ff6600; color: #fff; }
+        .learning-badge { display: inline-block; background: #00ff00; color: #000; padding: 2px 8px; border-radius: 10px; font-size: 0.7em; margin-left: 10px; }
+        input, select { background: #222; border: 1px solid #333; color: #00ff00; padding: 10px; font-family: monospace; border-radius: 5px; }
+        .input-group { display: flex; gap: 10px; flex-wrap: wrap; }
+        input { flex: 1; min-width: 150px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧠 PRIMUS-ADVANCED</h1>
+            <p>Self-Learning Autonomous Cybersecurity System</p>
+            <p>🧠 Hebbian Learning Active | 🔄 Reinforcement Learning | 📊 Anomaly Detection</p>
+        </div>
+        
+        <div class="stats-grid" id="stats"></div>
+        
+        <div class="panel">
+            <h2>🎮 Control Panel</h2>
+            <button class="button" onclick="refreshData()">🔄 Refresh</button>
+            <button class="button button-warning" id="dry-run-btn" onclick="toggleDryRun()">🧪 Dry-Run: ON</button>
+            <button class="button button-danger" onclick="emergencyHalt()">🛑 EMERGENCY HALT</button>
+            <button class="button" onclick="resume()">▶️ Resume</button>
+            <button class="button" onclick="showMemory()">🧠 Show Memory</button>
+        </div>
+        
+        <div class="panel">
+            <h2>🔬 Attack Simulator</h2>
+            <div class="input-group">
+                <input type="text" id="attack-ip" placeholder="Source IP" value="45.33.22.11">
+                <select id="attack-type">
+                    <option value="c2">C2 Beacon (Port 4444)</option>
+                    <option value="brute">Brute Force (SSH)</option>
+                    <option value="exfil">Data Exfiltration</option>
+                    <option value="malware">Malware Execution</option>
+                    <option value="lateral">Lateral Movement</option>
+                </select>
+                <button class="button" onclick="sendAttack()">🚀 Send Attack</button>
+            </div>
+            <div id="attack-result" style="margin-top: 10px; color: #ff6600;"></div>
+        </div>
+        
+        <div class="panel">
+            <h2>📋 Recent Threats</h2>
+            <table id="threats-table">
+                <thead><tr><th>Time</th><th>Source</th><th>Threat</th><th>Score</th><th>Action</th><th>Zero-Day</th></tr></thead>
+                <tbody><tr><td colspan="6">Loading...</td></tr></tbody>
+            </table>
+        </div>
+        
+        <div class="panel">
+            <h2>🧠 Learned Patterns <span id="pattern-count" class="learning-badge">0</span></h2>
+            <div id="patterns" style="max-height: 200px; overflow-y: auto;"></div>
+        </div>
+    </div>
+    
+    <script>
+        let autoRefresh = setInterval(refreshData, 3000);
+        
+        async function refreshData() {
+            try {
+                const metrics = await fetch('/metrics').then(r => r.json());
+                const statsHtml = `
+                    <div class="stat-card"><h3>📊 Events</h3><div class="value">${metrics.events_processed || 0}</div></div>
+                    <div class="stat-card"><h3>🚨 Threats</h3><div class="value">${metrics.threats_detected || 0}</div></div>
+                    <div class="stat-card"><h3>🎯 Rate</h3><div class="value">${Math.round((metrics.threat_rate || 0) * 100)}%</div></div>
+                    <div class="stat-card"><h3>🧠 Zero-Day</h3><div class="value">${metrics.zero_day_detected || 0}</div></div>
+                    <div class="stat-card"><h3>🔗 Campaigns</h3><div class="value">${metrics.active_campaigns || 0}</div></div>
+                    <div class="stat-card"><h3>🔄 RL Exp</h3><div class="value">${metrics.rl_experiences || 0}</div></div>
+                `;
+                document.getElementById('stats').innerHTML = statsHtml;
+                document.getElementById('pattern-count').innerText = metrics.memory_synapses || 0;
+                
+                const dryRunBtn = document.getElementById('dry-run-btn');
+                if (metrics.dry_run) {
+                    dryRunBtn.innerText = '🧪 Dry-Run: ON';
+                    dryRunBtn.classList.add('button-warning');
+                } else {
+                    dryRunBtn.innerText = '⚡ LIVE Mode: ON';
+                    dryRunBtn.classList.remove('button-warning');
+                }
+                
+                const threats = await fetch('/threats').then(r => r.json());
+                updateThreatsTable(threats.threats || []);
+                
+            } catch(e) { console.error('Refresh failed:', e); }
+        }
+        
+        async function updateThreatsTable(threats) {
+            const tbody = document.querySelector('#threats-table tbody');
+            if (!threats || threats.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6">No threats detected yet</td></tr>';
+                return;
+            }
+            tbody.innerHTML = threats.slice(0, 20).map(t => `
+                <tr>
+                    <td>${new Date(t.timestamp * 1000).toLocaleTimeString()}</td>
+                    <td>${t.source_ip}</td>
+                    <td class="severity-${(t.threat_type || '').toUpperCase()}">${t.threat_type || 'UNKNOWN'}</td>
+                    <td>${(t.threat_score || 0).toFixed(2)}</td>
+                    <td>${t.action || 'LOG'}</td>
+                    <td>${t.zero_day ? '⚠️ YES' : 'No'}</td>
+                </tr>
+            `).join('');
+        }
+        
+        async function sendAttack() {
+            const ip = document.getElementById('attack-ip').value;
+            const type = document.getElementById('attack-type').value;
+            let payload = { source_ip: ip, dest_ip: '192.168.1.100' };
+            
+            switch(type) {
+                case 'c2': payload.dest_port = 4444; payload.bytes_sent = 500; payload.duration_ms = 30000; break;
+                case 'brute': payload.dest_port = 22; payload.bytes_sent = 150; payload.duration_ms = 300; payload.process_name = 'sshd'; payload.log_line = 'Failed password for root'; break;
+                case 'exfil': payload.dest_port = 53; payload.bytes_sent = 250000; payload.duration_ms = 1500; break;
+                case 'malware': payload.dest_port = 9999; payload.bytes_sent = 50000; payload.duration_ms = 5000; payload.process_name = 'malware.exe'; payload.file_path = 'C:\\temp\\malware.exe'; break;
+                case 'lateral': payload.dest_port = 445; payload.bytes_sent = 5000; payload.duration_ms = 500; break;
+            }
+            
+            const result = await fetch('/analyze', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }).then(r => r.json());
+            document.getElementById('attack-result').innerHTML = `✅ Attack sent! ${result.status} - Threat: ${result.threat || 'none'} (Score: ${result.score || 0})`;
+            refreshData();
+        }
+        
+        async function toggleDryRun() {
+            const metrics = await fetch('/metrics').then(r => r.json());
+            const newState = !metrics.dry_run;
+            await fetch(`/control/dry_run?enabled=${newState}`, { method: 'POST' });
+            refreshData();
+        }
+        
+        async function emergencyHalt() { if(confirm('EMERGENCY HALT?')) { await fetch('/control/halt', { method: 'POST' }); refreshData(); } }
+        async function resume() { await fetch('/control/resume', { method: 'POST' }); refreshData(); }
+        async function showMemory() { const mem = await fetch('/memory/stats').then(r => r.json()); alert(`🧠 Memory Stats:\nSynapses: ${mem.synapses}\nPattern History: ${mem.pattern_history}\nLearning Rate: ${mem.learning_rate}`); }
+        
+        refreshData();
+    </script>
+</body>
+</html>

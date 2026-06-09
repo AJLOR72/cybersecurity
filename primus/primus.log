@@ -1,0 +1,13 @@
+2026-06-02 12:42:57,174 [INFO] Database initialized at primus.db
+2026-06-02 12:42:57,175 [INFO] PRIMUS Core initialized
+2026-06-02 12:44:02,637 [WARNING] THREAT DETECTED: c2_beacon from 45.33.22.11 (score: 0.92)
+2026-06-02 12:44:02,650 [INFO] Learning updated for pattern: c2_beacon_4444 (confidence: 1.01)
+2026-06-02 12:46:09,944 [WARNING] THREAT DETECTED: brute_force from 203.0.113.45 (score: 0.85)
+2026-06-02 12:46:09,954 [INFO] Learning updated for pattern: brute_force_22 (confidence: 0.94)
+2026-06-02 12:47:58,927 [INFO] Dry-run mode: False
+2026-06-02 13:00:54,895 [WARNING] THREAT DETECTED: c2_beacon from 45.33.22.11 (score: 0.92)
+2026-06-02 13:00:54,906 [INFO] Learning updated for pattern: c2_beacon_4444 (confidence: 1.01)
+2026-06-02 13:00:55,144 [WARNING] THREAT DETECTED: c2_beacon from 45.33.22.12 (score: 0.92)
+2026-06-02 13:00:55,157 [INFO] Learning updated for pattern: c2_beacon_4444 (confidence: 1.01)
+2026-06-02 13:01:00,366 [WARNING] THREAT DETECTED: c2_beacon from 45.33.22.13 (score: 0.92)
+2026-06-02 13:01:00,387 [INFO] Learning updated for pattern: c2_beacon_4444 (confidence: 1.01)
